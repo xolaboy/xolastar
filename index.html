@@ -1,0 +1,1383 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>XOLASTARS – Telegram Stars</title>
+    <style>
+        /* ===== ROOT ===== */
+        :root {
+            --bg: #070b17;
+            --card: #0f1a2f;
+            --card-hover: #182642;
+            --accent: #4a8cf7;
+            --gold: #f5c842;
+            --gold-light: #ffe28a;
+            --text: #f0f4ff;
+            --text2: #b0c4e0;
+            --border: #2a4070;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --shadow: 0 20px 60px rgba(0,0,0,0.8);
+            --shadow-glow: 0 0 50px rgba(245,200,66,0.08);
+            --transition: 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height:1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* ===== ЗВЁЗДНЫЙ ФОН ===== */
+        .stars-bg {
+            position:fixed;
+            top:0; left:0; width:100%; height:100%;
+            pointer-events:none;
+            z-index:0;
+        }
+        .star-particle {
+            position:absolute;
+            border-radius:50%;
+            background:#fff;
+            animation: twinkle var(--dur) ease-in-out infinite;
+            animation-delay: var(--delay);
+            opacity:0;
+            box-shadow:0 0 12px 4px rgba(74,140,247,0.3);
+        }
+        @keyframes twinkle {
+            0%,100% { opacity:0.1; transform:scale(0.8); }
+            30% { opacity:1; transform:scale(1.8); }
+            60% { opacity:0.3; transform:scale(0.9); }
+        }
+        .shooting-star {
+            position:absolute;
+            width:3px; height:3px;
+            background:#fff;
+            border-radius:50%;
+            animation: floatUp 8s linear infinite;
+            animation-delay: var(--sdelay);
+            box-shadow:0 0 16px 4px rgba(74,140,247,0.5);
+            left: var(--sx);
+            bottom: -20px;
+        }
+        @keyframes floatUp {
+            0% { transform:translateY(0) scale(1); opacity:0.9; }
+            100% { transform:translateY(-120vh) scale(0.1); opacity:0; }
+        }
+        /* ===== КОНТЕЙНЕР И КАРТОЧКИ ===== */
+        .container {
+            position:relative;
+            z-index:1;
+            max-width:820px;
+            margin:0 auto;
+            padding:20px 16px 60px;
+        }
+        .sticky-nav {
+            position:sticky;
+            top:0;
+            z-index:50;
+            background:rgba(7,11,23,0.85);
+            backdrop-filter:blur(12px);
+            border-bottom:1px solid var(--border);
+            padding:10px 16px;
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:center;
+            gap:8px 18px;
+            margin:0 -16px 20px -16px;
+        }
+        .sticky-nav a {
+            color:var(--text2);
+            text-decoration:none;
+            font-size:0.85em;
+            font-weight:500;
+            transition:color var(--transition);
+            padding:4px 0;
+            border-bottom:2px solid transparent;
+        }
+        .sticky-nav a:hover {
+            color:#fff;
+            border-bottom-color:var(--gold);
+        }
+        .header {
+            text-align:center;
+            padding:20px 20px 10px;
+        }
+        .logo {
+            font-size:2.8em;
+            font-weight:900;
+            letter-spacing:-2px;
+            background:linear-gradient(135deg, #8ab4f8, #c084fc, var(--gold));
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+            display:inline-block;
+            animation: logoPulse 4s ease-in-out infinite;
+        }
+        @keyframes logoPulse {
+            0%,100% { filter:brightness(1); }
+            50% { filter:brightness(1.4); }
+        }
+        .logo-icon {
+            display:inline-block;
+            animation: spinStar 10s linear infinite;
+        }
+        @keyframes spinStar {
+            0% { transform:rotate(0deg); }
+            100% { transform:rotate(360deg); }
+        }
+        .hero-title {
+            font-size:2.4em;
+            font-weight:800;
+            background:linear-gradient(135deg, #fff 40%, var(--gold-light));
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+            margin:10px 0 8px;
+            line-height:1.2;
+        }
+        .hero-sub {
+            color:var(--text2);
+            font-size:1.1em;
+            max-width:90%;
+            margin:0 auto 10px;
+        }
+        .hero-sub strong { color:var(--gold); }
+        .header-subtitle {
+            color:var(--text2);
+            font-size:1em;
+            margin-bottom:14px;
+            opacity:0.9;
+        }
+        .user-area {
+            display:flex;
+            align-items:center;
+            gap:12px;
+            justify-content:center;
+            flex-wrap:wrap;
+            padding:6px 0;
+            font-size:0.9em;
+            color:var(--text2);
+        }
+        .user-avatar {
+            width:34px; height:34px;
+            border-radius:50%;
+            background:linear-gradient(135deg, var(--accent), #6c5ce7);
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            color:#fff;
+            font-size:0.9em;
+        }
+        .card {
+            background:var(--card);
+            border:1px solid var(--border);
+            border-radius:var(--radius);
+            padding:28px 26px;
+            margin-bottom:24px;
+            box-shadow:var(--shadow);
+            transition:all var(--transition);
+            backdrop-filter:blur(4px);
+            position:relative;
+            overflow:hidden;
+        }
+        .card::before {
+            content:'';
+            position:absolute;
+            top:0; left:0; right:0; bottom:0;
+            background:radial-gradient(circle at 20% 30%, rgba(245,200,66,0.04), transparent 70%);
+            pointer-events:none;
+        }
+        .card:hover {
+            border-color:#3a5a8a;
+            transform:translateY(-4px);
+            box-shadow:var(--shadow), var(--shadow-glow);
+            background:var(--card-hover);
+        }
+        .card-accent {
+            border-color:#4a6a9a;
+            background:linear-gradient(145deg, #0f1a2f, #182642);
+        }
+        .card-accent::before {
+            background:radial-gradient(circle at 70% 20%, rgba(74,140,247,0.08), transparent 60%);
+        }
+        .card-title {
+            font-size:1.3em;
+            font-weight:700;
+            margin-bottom:18px;
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+        .card-title .icon { font-size:1.5em; }
+        .section-title {
+            font-size:1.5em;
+            font-weight:700;
+            text-align:center;
+            margin-bottom:20px;
+            background:linear-gradient(135deg, #fff, var(--gold-light));
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+        }
+        .input-group { margin-bottom:16px; }
+        .input-group label {
+            display:block;
+            font-size:0.9em;
+            font-weight:600;
+            margin-bottom:6px;
+            color:var(--text2);
+        }
+        .input-row { display:flex; align-items:center; gap:10px; }
+        .input-row input { flex:1; }
+        input[type="text"], input[type="number"], input[type="email"], input[type="password"] {
+            width:100%;
+            padding:14px 18px;
+            background:#0a1222;
+            border:1.5px solid var(--border);
+            border-radius:var(--radius-sm);
+            color:#fff;
+            font-size:1em;
+            outline:none;
+            transition:all var(--transition);
+            font-family:inherit;
+        }
+        input:focus {
+            border-color:var(--accent);
+            box-shadow:0 0 0 4px rgba(74,140,247,0.15);
+        }
+        .btn {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+            padding:14px 28px;
+            border-radius:60px;
+            font-weight:700;
+            font-size:1em;
+            cursor:pointer;
+            border:none;
+            transition:all var(--transition);
+            letter-spacing:0.5px;
+            font-family:inherit;
+            background:transparent;
+            color:#ccc;
+            border:1.5px solid var(--border);
+            position:relative;
+            overflow:hidden;
+        }
+        .btn-cta {
+            background:linear-gradient(135deg, #ffdd2d, #f0b800);
+            color:#1a1a1a;
+            border:none;
+            box-shadow:0 6px 28px rgba(245,200,66,0.35);
+            width:100%;
+            font-size:1.1em;
+            padding:18px;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:1.2px;
+        }
+        .btn-cta:hover {
+            box-shadow:0 10px 40px rgba(245,200,66,0.55);
+            transform:translateY(-3px) scale(1.02);
+        }
+        .btn-primary {
+            background:linear-gradient(135deg, var(--accent), #6c5ce7);
+            color:#fff;
+            border:none;
+            box-shadow:0 4px 20px rgba(74,140,247,0.3);
+            width:100%;
+            font-size:1.05em;
+            padding:16px;
+        }
+        .btn-primary:hover {
+            box-shadow:0 8px 32px rgba(74,140,247,0.5);
+            transform:translateY(-2px);
+        }
+        .btn-outline {
+            background:transparent;
+            border:1.5px solid var(--border);
+            color:var(--text2);
+        }
+        .btn-outline:hover {
+            border-color:#fff;
+            color:#fff;
+            background:rgba(255,255,255,0.04);
+        }
+        .btn-sm { padding:8px 20px; font-size:0.85em; border-radius:30px; }
+        .btn-gold {
+            background:linear-gradient(135deg, #e8b830, #f0c040);
+            color:#1a1a1a;
+            font-weight:700;
+            border:none;
+            box-shadow:0 4px 16px rgba(245,200,66,0.25);
+        }
+        .btn-gold:hover {
+            box-shadow:0 8px 28px rgba(245,200,66,0.4);
+            transform:translateY(-2px);
+        }
+        .btn-tinkoff {
+            background:linear-gradient(135deg, #ffdd2d, #f5c842);
+            color:#1a1a1a;
+            font-weight:800;
+            border:none;
+            box-shadow:0 4px 20px rgba(245,200,66,0.3);
+            width:100%;
+            padding:16px;
+            font-size:1.1em;
+        }
+        .btn-tinkoff:hover {
+            box-shadow:0 8px 32px rgba(245,200,66,0.5);
+            transform:translateY(-2px);
+        }
+        .btn-copy {
+            background:#2a4070;
+            border:none;
+            color:#fff;
+            padding:6px 16px;
+            border-radius:24px;
+            font-size:0.8em;
+            cursor:pointer;
+            transition:background var(--transition);
+        }
+        .btn-copy:hover { background:#3a5a8a; }
+        .total-display {
+            background:#0a1222;
+            border-radius:var(--radius-sm);
+            padding:20px;
+            text-align:center;
+            margin:14px 0;
+            border:1.5px solid #2a4a7a;
+        }
+        .total-amount {
+            font-size:2.4em;
+            font-weight:900;
+            color:var(--gold);
+            letter-spacing:-0.5px;
+        }
+        .total-stars { color:var(--text2); font-size:0.95em; }
+        .packs-grid {
+            display:grid;
+            grid-template-columns:repeat(auto-fit, minmax(120px,1fr));
+            gap:12px;
+            margin-top:12px;
+        }
+        .pack-btn {
+            background:rgba(255,255,255,0.03);
+            border:1.5px solid var(--border);
+            border-radius:var(--radius-sm);
+            padding:16px 10px;
+            text-align:center;
+            cursor:pointer;
+            transition:all var(--transition);
+            color:var(--text);
+            font-weight:600;
+        }
+        .pack-btn:hover {
+            border-color:var(--gold);
+            background:rgba(245,200,66,0.08);
+            transform:translateY(-3px);
+            box-shadow:0 8px 20px rgba(0,0,0,0.3);
+        }
+        .pack-btn .pack-qty { font-size:1.4em; font-weight:800; color:#fff; }
+        .pack-btn .pack-price { font-size:0.9em; color:var(--gold); }
+        .benefits-grid {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:18px;
+            margin:18px 0;
+        }
+        .benefit-item {
+            background:rgba(255,255,255,0.02);
+            border:1px solid var(--border);
+            border-radius:var(--radius-sm);
+            padding:20px 16px;
+            text-align:center;
+            transition:all var(--transition);
+        }
+        .benefit-item:hover {
+            border-color:var(--gold);
+            transform:translateY(-6px);
+            box-shadow:0 12px 30px rgba(0,0,0,0.3);
+        }
+        .benefit-item .icon { font-size:2.4em; margin-bottom:8px; display:block; }
+        .benefit-item h4 { color:#fff; margin-bottom:4px; font-size:1.05em; }
+        .benefit-item p { color:var(--text2); font-size:0.9em; line-height:1.5; }
+        .stats-grid {
+            display:grid;
+            grid-template-columns:repeat(3, 1fr);
+            gap:14px;
+            margin:10px 0 6px;
+        }
+        .stat-item {
+            background:rgba(255,255,255,0.02);
+            border:1px solid var(--border);
+            border-radius:var(--radius-sm);
+            padding:16px 8px;
+            text-align:center;
+        }
+        .stat-item .number {
+            font-size:1.8em;
+            font-weight:800;
+            color:var(--gold);
+        }
+        .stat-item .label {
+            color:var(--text2);
+            font-size:0.8em;
+            margin-top:2px;
+        }
+        .steps-row {
+            display:flex;
+            flex-wrap:wrap;
+            gap:14px;
+            justify-content:center;
+            margin:16px 0;
+        }
+        .step-item {
+            background:rgba(255,255,255,0.02);
+            border:1px solid var(--border);
+            border-radius:var(--radius-sm);
+            padding:18px 14px;
+            flex:1 0 170px;
+            text-align:center;
+            transition:all var(--transition);
+        }
+        .step-item:hover { border-color:var(--gold); }
+        .step-item .step-num {
+            font-size:2.4em;
+            font-weight:900;
+            color:var(--gold);
+        }
+        .step-item p { color:var(--text2); font-size:0.92em; margin-top:6px; }
+        .rating-badge {
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            background:rgba(245,200,66,0.1);
+            padding:6px 18px;
+            border-radius:40px;
+            border:1px solid var(--gold);
+            color:var(--gold);
+            font-weight:700;
+            margin-bottom:14px;
+        }
+        .review-card {
+            background:rgba(255,255,255,0.02);
+            border:1px solid var(--border);
+            border-radius:var(--radius-sm);
+            padding:18px 20px;
+            margin-bottom:12px;
+            transition:all var(--transition);
+        }
+        .review-card:hover { border-color:#3a5a8a; }
+        .review-header {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:8px;
+            margin-bottom:6px;
+        }
+        .review-author { font-weight:700; color:#fff; }
+        .review-date { font-size:0.78em; color:var(--text2); }
+        .review-stars { color:var(--gold); letter-spacing:2px; font-size:1.1em; }
+        .review-text { color:var(--text2); font-size:0.95em; line-height:1.6; }
+        .faq-item {
+            border-bottom:1px solid var(--border);
+            padding:14px 0;
+            cursor:pointer;
+        }
+        .faq-item:last-child { border-bottom:none; }
+        .faq-question {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            color:#fff;
+            font-weight:600;
+        }
+        .faq-answer {
+            color:var(--text2);
+            font-size:0.95em;
+            padding-top:8px;
+            display:none;
+            line-height:1.6;
+        }
+        .faq-item.open .faq-answer { display:block; }
+        .faq-item .arrow { transition:transform 0.3s; }
+        .faq-item.open .arrow { transform:rotate(180deg); }
+        .subscribe-form {
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+            justify-content:center;
+            margin-top:14px;
+        }
+        .subscribe-form input {
+            flex:1;
+            min-width:220px;
+            padding:14px 18px;
+        }
+        .subscribe-form .btn { flex:0 1 auto; }
+        .modal-overlay {
+            display:none;
+            position:fixed;
+            top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.85);
+            backdrop-filter:blur(12px);
+            z-index:100;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+        }
+        .modal-overlay.open { display:flex; }
+        .modal {
+            background:var(--card);
+            border:1px solid var(--border);
+            border-radius:var(--radius);
+            padding:32px 28px;
+            max-width:500px;
+            width:100%;
+            box-shadow:0 30px 70px rgba(0,0,0,0.9);
+            position:relative;
+            animation: modalIn 0.3s ease-out;
+            max-height:90vh;
+            overflow-y:auto;
+        }
+        @keyframes modalIn {
+            from { opacity:0; transform:translateY(30px) scale(0.96); }
+            to { opacity:1; transform:translateY(0) scale(1); }
+        }
+        .modal-close {
+            position:absolute;
+            top:12px; right:18px;
+            background:none;
+            border:none;
+            color:#fff;
+            font-size:2em;
+            cursor:pointer;
+            transition:opacity 0.2s;
+            opacity:0.6;
+        }
+        .modal-close:hover { opacity:1; }
+        .modal-title {
+            font-size:1.5em;
+            font-weight:700;
+            margin-bottom:20px;
+            text-align:center;
+        }
+        .bank-card {
+            background:#0a1222;
+            border:1.5px solid #2a4a7a;
+            border-radius:var(--radius-sm);
+            padding:24px;
+            text-align:center;
+            margin:12px 0;
+        }
+        .bank-logo {
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            font-weight:800;
+            font-size:1.3em;
+            color:#fff;
+            margin-bottom:12px;
+        }
+        .bank-logo svg { width:40px; height:40px; border-radius:50%; }
+        .bank-detail {
+            font-size:1.2em;
+            font-weight:700;
+            color:#fff;
+            margin:6px 0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+        .bank-detail-sub { color:var(--text2); font-size:0.85em; }
+        .step-hidden { display:none; }
+        .step-visible { display:block; }
+        .order-summary { text-align:center; padding:10px 0; }
+        .order-summary .big-price { font-size:2.2em; font-weight:900; color:var(--gold); }
+        .order-summary .detail { color:var(--text2); margin:6px 0; }
+        .notification-box {
+            background:#0a1222;
+            border:1.5px solid var(--gold);
+            border-radius:var(--radius-sm);
+            padding:16px;
+            margin:12px 0;
+        }
+        .order-data {
+            background:#070b17;
+            padding:12px;
+            border-radius:8px;
+            font-family: monospace;
+            font-size:0.9em;
+            white-space:pre-wrap;
+            word-break:break-all;
+            margin:8px 0;
+            color:var(--text);
+        }
+        .legal-text {
+            max-height:400px;
+            overflow-y:auto;
+            background:#0a1222;
+            padding:18px;
+            border-radius:var(--radius-sm);
+            border:1px solid var(--border);
+            color:#c8d0e0;
+            font-size:0.9em;
+            line-height:1.7;
+            text-align:left;
+        }
+        .legal-text h3 { color:#fff; margin:14px 0 6px; }
+        .legal-text p { margin-bottom:10px; }
+        .footer {
+            text-align:center;
+            padding:24px 20px;
+            color:var(--text2);
+            font-size:0.85em;
+            border-top:1px solid var(--border);
+            margin-top:20px;
+        }
+        .footer a { color:var(--accent); text-decoration:none; }
+        .footer a:hover { color:var(--gold); }
+        @media (max-width:640px) {
+            .hero-title { font-size:1.8em; }
+            .logo { font-size:2em; }
+            .benefits-grid { grid-template-columns:1fr; }
+            .stats-grid { grid-template-columns:1fr 1fr; }
+            .steps-row { flex-direction:column; align-items:stretch; }
+            .card { padding:20px 16px; }
+            .modal { padding:24px 16px; }
+            .total-amount { font-size:1.8em; }
+            .sticky-nav { gap:6px 12px; }
+            .sticky-nav a { font-size:0.8em; }
+            .packs-grid { grid-template-columns:repeat(3, 1fr); }
+        }
+        @media (max-width:400px) {
+            .stats-grid { grid-template-columns:1fr; }
+            .packs-grid { grid-template-columns:repeat(2, 1fr); }
+        }
+        .glow-text { color:var(--gold); }
+        .text-gradient {
+            background:linear-gradient(135deg, #fff, var(--gold-light));
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+        }
+        .mt-8 { margin-top:8px; }
+        .mb-8 { margin-bottom:8px; }
+        .flex-center { display:flex; align-items:center; justify-content:center; gap:8px; }
+    </style>
+</head>
+<body>
+    <div class="stars-bg" id="starsBg"></div>
+
+    <div class="container">
+        <!-- ЯКОРНАЯ НАВИГАЦИЯ -->
+        <nav class="sticky-nav">
+            <a href="#tab-buy">⭐ Купить</a>
+            <a href="#benefits">Преимущества</a>
+            <a href="#how-it-works">Как работает</a>
+            <a href="#reviews">Отзывы</a>
+            <a href="#faq">FAQ</a>
+            <a href="#subscribe">Подписка</a>
+        </nav>
+
+        <header class="header">
+            <div class="logo"><span class="logo-icon">✦</span> XOLASTARS</div>
+            <h1 class="hero-title">Зарабатывай больше с Telegram Stars</h1>
+            <p class="hero-sub">Пополни баланс за считанные минуты по самой низкой цене — <strong>1,25 ₽ за звезду</strong></p>
+            <p class="header-subtitle">⭐ Официальные Stars для вашего канала или бота. Без скрытых комиссий, без ожидания — отправка вручную в течение часа.</p>
+            <div class="user-area" id="userArea">
+                <span id="userDisplay">🔒 Неавторизован</span>
+                <button class="btn btn-outline btn-sm" onclick="openAuthModal()" id="btnLogin">Войти / Зарегистрироваться</button>
+                <button class="btn btn-outline btn-sm" onclick="logout()" id="btnLogout" style="display:none;">Выйти</button>
+            </div>
+        </header>
+
+        <div class="tabs" id="mainTabs" style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+            <button class="tab-btn active-tab" data-tab="buy" style="flex:1; padding:12px; border-radius:40px; background:linear-gradient(135deg, #2a4070, #1e2a50); border:1px solid var(--accent); color:#fff; font-weight:600; cursor:pointer; transition:all var(--transition);">⭐ Купить</button>
+            <button class="tab-btn" data-tab="orders" style="flex:1; padding:12px; border-radius:40px; background:transparent; border:1px solid var(--border); color:var(--text2); font-weight:600; cursor:pointer; transition:all var(--transition);">📦 Мои заказы</button>
+            <button class="tab-btn" data-tab="reviews" style="flex:1; padding:12px; border-radius:40px; background:transparent; border:1px solid var(--border); color:var(--text2); font-weight:600; cursor:pointer; transition:all var(--transition);">💬 Отзывы</button>
+        </div>
+
+        <!-- ВКЛАДКА ПОКУПКИ -->
+        <div id="tab-buy" class="tab-content">
+            <div class="card card-accent" id="buy">
+                <div class="card-title"><span class="icon">⭐</span> Покупка Telegram Stars</div>
+                <div class="input-group">
+                    <label>1. Ваш Telegram @username</label>
+                    <div class="input-row">
+                        <input type="text" id="tgUsername" placeholder="@username" autocomplete="off">
+                        <div class="info-badge" id="infoBadge" tabindex="0" role="button" aria-label="Помощь" style="display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:#2a4070; color:var(--gold); cursor:pointer; border:1.5px solid #3a5a8a; transition:all var(--transition);">
+                            !
+                            <div class="tooltip-popup" style="display:none; position:absolute; bottom:130%; left:50%; transform:translateX(-50%); background:#1e2440; border:1.5px solid var(--gold); color:#fff; padding:12px 16px; border-radius:10px; font-size:0.82em; width:260px; text-align:center; z-index:20; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                                <b>Важно!</b> Укажите точный никнейм, иначе звёзды не зачислятся. Проверьте его в Telegram!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>2. Количество звёзд</label>
+                    <input type="number" id="starsQty" placeholder="Например: 100" min="1" max="100000" value="100">
+                </div>
+                <!-- Блок наборов -->
+                <div class="packs-grid" id="packsGrid">
+                    <div class="pack-btn" data-qty="100"><div class="pack-qty">100 ⭐</div><div class="pack-price">125 ₽</div></div>
+                    <div class="pack-btn" data-qty="200"><div class="pack-qty">200 ⭐</div><div class="pack-price">250 ₽</div></div>
+                    <div class="pack-btn" data-qty="400"><div class="pack-qty">400 ⭐</div><div class="pack-price">500 ₽</div></div>
+                    <div class="pack-btn" data-qty="500"><div class="pack-qty">500 ⭐</div><div class="pack-price">625 ₽</div></div>
+                    <div class="pack-btn" data-qty="800"><div class="pack-qty">800 ⭐</div><div class="pack-price">1000 ₽</div></div>
+                    <div class="pack-btn" data-qty="1000"><div class="pack-qty">1000 ⭐</div><div class="pack-price">1250 ₽</div></div>
+                </div>
+                <div class="total-display" id="totalDisplay">
+                    <span class="total-stars">⭐ <span id="displayStars">100</span> звёзд</span><br>
+                    <span class="total-amount" id="displayPrice">125.00 ₽</span>
+                </div>
+                <button class="btn btn-cta" onclick="openPaymentModal()" id="btnPay">💳 Купить сейчас</button>
+            </div>
+
+            <div class="card" id="benefits">
+                <h3 class="section-title" style="font-size:1.2em; -webkit-text-fill-color:#fff; background:none; margin-bottom:12px;">Почему выбирают нас</h3>
+                <div class="benefits-grid">
+                    <div class="benefit-item"><span class="icon">💰</span><h4>Лучшая цена</h4><p>Всего 1,25 ₽ за звезду — фиксированная цена без скрытых надбавок.</p></div>
+                    <div class="benefit-item"><span class="icon">⏱️</span><h4>Быстрая обработка</h4><p>Администратор подтверждает заказ в среднем за 15 минут. Не ждите дни.</p></div>
+                    <div class="benefit-item"><span class="icon">🔒</span><h4>Безопасно и прозрачно</h4><p>Оплата по QR-коду или переводу на карту. Все данные защищены.</p></div>
+                    <div class="benefit-item"><span class="icon">🤝</span><h4>Поддержка 24/7</h4><p>Мы на связи в Telegram и по email. Любые вопросы решаются оперативно.</p></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="stats-grid">
+                    <div class="stat-item"><div class="number" id="statStars">5000+</div><div class="label">⭐ Звёзд продано</div></div>
+                    <div class="stat-item"><div class="number">~15</div><div class="label">⏱️ Среднее время доставки (мин)</div></div>
+                    <div class="stat-item"><div class="number" id="statClients">100+</div><div class="label">👤 Довольных клиентов</div></div>
+                </div>
+            </div>
+
+            <div class="card" id="how-it-works">
+                <h3 class="section-title" style="font-size:1.2em; -webkit-text-fill-color:#fff; background:none; margin-bottom:12px;">Пополнить баланс Stars — проще простого</h3>
+                <div class="steps-row">
+                    <div class="step-item"><div class="step-num">1</div><p><b>Укажите @username</b> и количество звёзд (от 100 до 100 000).</p></div>
+                    <div class="step-item"><div class="step-num">2</div><p><b>Подтвердите заказ</b> и перейдите к оплате — выберите удобный способ (QR-код или перевод по номеру карты).</p></div>
+                    <div class="step-item"><div class="step-num">3</div><p><b>Получите звёзды</b> — администратор проверит платёж и отправит звёзды на указанный аккаунт в течение 1–24 часов (обычно быстрее).</p></div>
+                </div>
+            </div>
+
+            <div class="trust-row" style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:14px; margin:10px 0 20px;">
+                <div class="trust-item" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.02); padding:8px 18px; border-radius:40px; border:1px solid var(--border); color:var(--text2);"><span style="font-size:1.3em;">🛡️</span> Гарантия возврата</div>
+                <div class="trust-item" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.02); padding:8px 18px; border-radius:40px; border:1px solid var(--border); color:var(--text2);"><span style="font-size:1.3em;">🔐</span> Конфиденциальность</div>
+                <div class="trust-item" style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.02); padding:8px 18px; border-radius:40px; border:1px solid var(--border); color:var(--text2);"><span style="font-size:1.3em;">✅</span> Проверенный продавец</div>
+            </div>
+        </div>
+
+        <!-- ВКЛАДКА ЗАКАЗОВ -->
+        <div id="tab-orders" class="tab-content" style="display:none;">
+            <div class="card">
+                <div class="card-title"><span class="icon">📦</span> Мои заказы</div>
+                <div id="ordersContainer"><p style="color:var(--text2); text-align:center;">Загрузка...</p></div>
+            </div>
+        </div>
+
+        <!-- ВКЛАДКА ОТЗЫВОВ -->
+        <div id="tab-reviews" class="tab-content" style="display:none;">
+            <div class="card" id="reviews">
+                <div class="card-title" style="justify-content:space-between; flex-wrap:wrap;">
+                    <span><span class="icon">💬</span> Отзывы покупателей</span>
+                    <button class="btn btn-gold btn-sm" onclick="openReviewModal()">✍️ Написать отзыв</button>
+                </div>
+                <div id="ratingDisplay" class="rating-badge" style="margin-top:0;">⭐ 4.8 из 5 (45 отзывов)</div>
+                <div class="filter-row" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;">
+                    <button class="filter-btn active-filter" data-filter="all" style="padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:#ccc; cursor:pointer;">Все</button>
+                    <button class="filter-btn" data-filter="5" style="padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:#ccc; cursor:pointer;">⭐5</button>
+                    <button class="filter-btn" data-filter="4" style="padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:#ccc; cursor:pointer;">⭐4</button>
+                    <button class="filter-btn" data-filter="3" style="padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:#ccc; cursor:pointer;">⭐3</button>
+                    <button class="filter-btn" data-filter="2" style="padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:#ccc; cursor:pointer;">⭐2</button>
+                    <button class="filter-btn" data-filter="1" style="padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:#ccc; cursor:pointer;">⭐1</button>
+                    <button class="filter-btn" data-sort="newest" style="padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:#ccc; cursor:pointer;">🆕 Новые</button>
+                    <button class="filter-btn" data-sort="oldest" style="padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:#ccc; cursor:pointer;">📅 Старые</button>
+                </div>
+                <div id="reviewsContainer"><p style="color:var(--text2); text-align:center;">Загрузка...</p></div>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="card" id="faq">
+            <h3 class="section-title" style="font-size:1.2em; -webkit-text-fill-color:#fff; background:none; margin-bottom:12px;">❓ Часто задаваемые вопросы</h3>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)"><span>Как быстро приходят звёзды?</span><span class="arrow">▼</span></div>
+                <div class="faq-answer">Обычно в течение 1–2 часов после подтверждения оплаты, но не более 24 часов.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)"><span>Можно ли вернуть деньги?</span><span class="arrow">▼</span></div>
+                <div class="faq-answer">Да, если звёзды не были отправлены. Свяжитесь с поддержкой.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)"><span>Безопасно ли указывать @username?</span><span class="arrow">▼</span></div>
+                <div class="faq-answer">Да, мы используем его только для зачисления звёзд. Мы не храним пароли и не запрашиваем доступ к аккаунту.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)"><span>Какие способы оплаты доступны?</span><span class="arrow">▼</span></div>
+                <div class="faq-answer">Перевод на карту Т-Банка или по QR-коду. В ближайшее время добавим другие платёжные системы.</div>
+            </div>
+        </div>
+
+        <!-- ПОДПИСКА -->
+        <div class="card" id="subscribe">
+            <h3 class="section-title" style="font-size:1.2em; -webkit-text-fill-color:#fff; background:none; margin-bottom:6px;">📨 Получайте эксклюзивные скидки первыми!</h3>
+            <p style="color:var(--text2); text-align:center; margin-bottom:12px;">Введите email и получите промокод на <strong style="color:var(--gold);">5% скидку</strong> на следующий заказ.</p>
+            <div class="subscribe-form">
+                <input type="email" id="subscribeEmail" placeholder="Ваш email" style="flex:1;">
+                <button class="btn btn-cta" onclick="subscribe()" style="width:auto; padding:14px 32px;">Подписаться</button>
+            </div>
+            <p id="subscribeMsg" style="color:var(--gold); text-align:center; margin-top:10px; font-size:0.95em;"></p>
+            <div id="promoDisplay" style="display:none; margin-top:12px; background:#0a1222; border:1px solid var(--gold); border-radius:var(--radius-sm); padding:12px; text-align:center;">
+                <p style="color:#fff; font-weight:700;">Ваш промокод: <span style="color:var(--gold); font-size:1.3em;">XOLA5</span></p>
+                <p style="color:var(--text2); font-size:0.9em;">Действует 7 дней на любой заказ</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФУТЕР -->
+    <footer class="footer">
+        <p>📧 Поддержка: <a href="mailto:xolasup@mail.ru">xolasup@mail.ru</a></p>
+        <p>🤖 Наш бот: <a href="https://t.me/xolastars_bot" target="_blank">@xolastars_bot</a></p>
+        <p style="margin-top:8px;">
+            <a href="#" onclick="openTerms(); return false;">Пользовательское соглашение</a> |
+            <a href="#" onclick="openPrivacy(); return false;">Политика конфиденциальности</a>
+        </p>
+        <p style="margin-top:8px; font-size:0.75em;">© 2026 XOLASTARS. Все права защищены.</p>
+    </footer>
+
+    <!-- МОДАЛКИ -->
+    <div class="modal-overlay" id="authModalOverlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closeAuthModal()">✕</button>
+            <div class="modal-title">🔐 Вход / Регистрация</div>
+            <p style="text-align:center; color:var(--text2); margin-bottom:14px;">Введите почту и пароль для входа, или зарегистрируйтесь</p>
+            <div class="input-group"><label>Email</label><input type="email" id="authEmail" placeholder="your@email.com"></div>
+            <div class="input-group"><label>Пароль</label><input type="password" id="authPassword" placeholder="Придумайте пароль"></div>
+            <button class="btn btn-primary" onclick="registerOrLogin()" style="margin-bottom:8px;">✅ Войти / Зарегистрироваться</button>
+            <button class="btn btn-outline" onclick="loginAnonymous()" style="width:100%;">👤 Продолжить анонимно</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="paymentModalOverlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closePaymentModal()">✕</button>
+            <div class="modal-title">💳 Оформление заказа</div>
+            <div id="confirmStep" class="step-visible">
+                <div class="order-summary">
+                    <p class="detail">Вы покупаете <b id="confirmStars">100</b> звёзд</p>
+                    <p class="detail">для <b id="confirmUser">@username</b></p>
+                    <p class="big-price" id="confirmPrice">125.00 ₽</p>
+                </div>
+                <button class="btn btn-cta" onclick="goToPaymentStep()" style="width:100%;">✅ Подтвердить и перейти к оплате</button>
+                <button class="btn btn-outline" onclick="closePaymentModal()" style="width:100%; margin-top:6px;">Отмена</button>
+            </div>
+            <div id="paymentStep" class="step-hidden">
+                <div class="bank-card">
+                    <div class="bank-logo">
+                        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="20" cy="20" r="20" fill="#FFDD2D"/>
+                            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-weight="900" font-size="24" fill="#000">Т</text>
+                        </svg>
+                        Т‑Банк
+                    </div>
+                    <p style="color:var(--text2);">Переведите сумму на карту:</p>
+                    <div class="bank-detail">
+                        <span><b>2200 7014 1670 4861</b></span>
+                        <button class="btn-copy" onclick="copyCardNumber('2200 7014 1670 4861')">📋 Копировать</button>
+                    </div>
+                    <p class="bank-detail-sub">(Получатель: Валерий А.)</p>
+
+                    <!-- Ссылка на оплату через Т-Банк вместо QR -->
+                    <div style="margin-top:16px;">
+                        <a href="https://www.tinkoff.ru/rm/r_VSAvFAhZzn.PgIveJdVzJ/OPO0y80276" target="_blank" class="btn btn-tinkoff" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:10px;">
+                            <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+                                <circle cx="20" cy="20" r="20" fill="#FFDD2D"/>
+                                <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-weight="900" font-size="24" fill="#000">Т</text>
+                            </svg>
+                            Оплатить через Т‑Банк
+                        </a>
+                        <p style="color:var(--text2); margin-top:8px; font-size:0.85em;">Быстро и безопасно через приложение Т‑Банка</p>
+                    </div>
+
+                    <p style="color:var(--text2); margin-top:16px;">Сумма к оплате:</p>
+                    <p class="bank-detail" style="color:var(--gold); font-size:1.6em;" id="paymentAmount">125.00 ₽</p>
+                    <p class="bank-detail-sub">За <span id="paymentStars">100</span> звёзд для <span id="paymentUser">@username</span></p>
+                </div>
+                <p style="text-align:center; color:var(--text2); font-size:0.85em; margin-top:10px;">
+                    ⚡ Администратор <b>@ashpetys</b> проверит перевод и отправит звёзды вручную (обычно 1–24 часа).
+                </p>
+                <button class="btn btn-gold" onclick="confirmPaymentDone()" style="width:100%; margin-top:8px;">✅ Я перевёл(а), жду звёзды</button>
+                <button class="btn btn-outline" onclick="closePaymentModal()" style="width:100%; margin-top:6px;">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="reviewModalOverlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closeReviewModal()">✕</button>
+            <div class="modal-title">✍️ Оставить отзыв</div>
+            <p style="text-align:center; color:var(--text2);">Оцените покупку и напишите комментарий</p>
+            <div class="star-rating-input" id="starRatingInput" style="display:flex; gap:6px; font-size:2.4em; justify-content:center; margin:12px 0; cursor:pointer;">
+                <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5">★</span>
+            </div>
+            <input type="hidden" id="reviewRating" value="5">
+            <div class="input-group"><label>Ваш ник</label><input type="text" id="reviewAuthor" placeholder="@username"></div>
+            <div class="input-group"><label>Комментарий</label><input type="text" id="reviewText" placeholder="Напишите впечатления..."></div>
+            <button class="btn btn-primary" onclick="submitReview()">📝 Опубликовать отзыв</button>
+            <button class="btn btn-outline" onclick="closeReviewModal()" style="width:100%; margin-top:6px;">Отмена</button>
+        </div>
+    </div>
+
+    <!-- Уведомление об автоматической отправке -->
+    <div class="modal-overlay" id="notifyModalOverlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closeNotifyModal()">✕</button>
+            <div class="modal-title">📨 Заказ отправлен администратору</div>
+            <p style="text-align:center; color:var(--text2);">Автоматическое уведомление отправлено в Telegram. Ожидайте зачисления звёзд (обычно 1–24 часа).</p>
+            <p style="text-align:center; color:var(--text2); margin-top:8px; font-size:0.9em;">Если вы не получили подтверждение, свяжитесь с поддержкой.</p>
+            <button class="btn btn-outline" onclick="closeNotifyModal()" style="width:100%; margin-top:12px;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Юридические модалки -->
+    <div class="modal-overlay" id="termsModalOverlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closeTerms()">✕</button>
+            <div class="modal-title">📜 Пользовательское соглашение</div>
+            <div class="legal-text">
+                <h3>1. Общие положения</h3>
+                <p>Настоящее Соглашение регулирует отношения между администратором сайта XOLASTARS (далее – «Администратор») и пользователем при использовании сервиса по покупке Telegram Stars.</p>
+                <p>Используя сайт, вы подтверждаете, что ознакомлены с условиями и принимаете их.</p>
+                <h3>2. Условия для несовершеннолетних</h3>
+                <p>Если вам меньше 18 лет, вы гарантируете, что получили согласие своих родителей или законных представителей на использование сервиса и совершение покупок. Администратор не несёт ответственности за действия несовершеннолетних без надзора родителей.</p>
+                <h3>3. Порядок оказания услуг</h3>
+                <p>После оплаты заказа Администратор вручную отправляет Telegram Stars на указанный @username в течение 1–24 часов. В случае задержки пользователь может обратиться в поддержку.</p>
+                <h3>4. Ответственность и возврат</h3>
+                <p>Администратор не гарантирует мгновенную доставку, так как процесс зависит от работы Telegram. Возврат средств возможен только при отказе от услуги до её выполнения. В случае ошибочного перевода средств пользователь обязан немедленно сообщить об этом в поддержку.</p>
+                <h3>5. Интеллектуальная собственность</h3>
+                <p>Все материалы сайта, включая дизайн, логотипы и тексты, являются собственностью Администратора и защищены авторским правом. Их использование без разрешения запрещено.</p>
+                <h3>6. Заключительные положения</h3>
+                <p>Администратор оставляет за собой право изменять условия Соглашения без предварительного уведомления. Актуальная версия всегда доступна на сайте. Продолжая использовать сайт после изменений, вы соглашаетесь с новой редакцией.</p>
+                <p style="margin-top:12px; color:var(--text2);">Дата публикации: 11 июля 2026 г.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="privacyModalOverlay">
+        <div class="modal">
+            <button class="modal-close" onclick="closePrivacy()">✕</button>
+            <div class="modal-title">🔒 Политика конфиденциальности</div>
+            <div class="legal-text">
+                <h3>1. Какие данные собираются</h3>
+                <p>Мы собираем только те данные, которые вы предоставляете добровольно: Telegram @username, адрес электронной почты (при регистрации), а также информацию о заказах.</p>
+                <h3>2. Как используются данные</h3>
+                <p>Данные используются исключительно для обработки заказов и связи с вами по вопросам покупки. Мы не передаём ваши данные третьим лицам, за исключением случаев, предусмотренных законом.</p>
+                <h3>3. Хранение и защита</h3>
+                <p>Ваши данные хранятся в зашифрованном виде в локальном хранилище браузера (localStorage). Администратор не имеет доступа к вашему паролю – он хранится только у вас. Мы принимаем все необходимые меры для защиты от несанкционированного доступа.</p>
+                <h3>4. Файлы cookie</h3>
+                <p>Сайт использует файлы cookie для улучшения пользовательского опыта. Вы можете отключить их в настройках браузера, но это может повлиять на функциональность сайта.</p>
+                <h3>5. Согласие</h3>
+                <p>Продолжая использовать сайт, вы даёте согласие на сбор и обработку ваших данных в объёме, необходимом для работы сервиса.</p>
+                <h3>6. Контакты</h3>
+                <p>По вопросам конфиденциальности обращайтесь: <a href="mailto:xolasup@mail.ru" style="color:var(--accent);">xolasup@mail.ru</a></p>
+                <p style="margin-top:12px; color:var(--text2);">Дата публикации: 11 июля 2026 г.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ===== НАСТРОЙКИ TELEGRAM БОТА =====
+            const BOT_TOKEN = '8983307709:AAHdQn9kS3zXqusa3xv5mgC-rIw4-6qMNIU';
+            const ADMIN_CHAT_ID = '6608047888';
+
+            function sendTelegramMessage(text) {
+                if (!BOT_TOKEN || !ADMIN_CHAT_ID || BOT_TOKEN === 'ВАШ_ТОКЕН_БОТА') {
+                    console.warn('⚠️ Telegram Bot не настроен.');
+                    return Promise.reject('Bot not configured');
+                }
+                const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                return fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_CHAT_ID,
+                        text: text,
+                        parse_mode: 'HTML',
+                        disable_web_page_preview: true
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) console.log('✅ Уведомление отправлено в Telegram');
+                    else console.error('❌ Ошибка Telegram:', data.description);
+                })
+                .catch(err => console.error('❌ Ошибка отправки:', err));
+            }
+
+            function sendSubscriptionNotification(email) {
+                const text = `📩 <b>Новая подписка</b>\nEmail: ${email}`;
+                return sendTelegramMessage(text).catch(() => {
+                    const subject = encodeURIComponent('Новый подписчик XOLASTARS');
+                    const body = encodeURIComponent(`Email: ${email}`);
+                    window.open(`mailto:xolasup@mail.ru?subject=${subject}&body=${body}`, '_blank');
+                });
+            }
+
+            function sendOrderNotification(order) {
+                const text = `🆕 <b>Новый заказ</b>\n` +
+                            `🧾 Номер: #${order.id}\n` +
+                            `👤 Username: ${order.username}\n` +
+                            `⭐ Количество: ${order.qty} звёзд\n` +
+                            `💰 Сумма: ${order.price} ₽\n` +
+                            `📅 Дата: ${new Date(order.timestamp).toLocaleString('ru-RU')}`;
+                return sendTelegramMessage(text).catch(() => {
+                    const data = `Заказ #${order.id}\nUsername: ${order.username}\nКоличество: ${order.qty} звёзд\nСумма: ${order.price} ₽\nДата: ${new Date(order.timestamp).toLocaleString('ru-RU')}`;
+                    const subject = encodeURIComponent('Новый заказ на XOLASTARS');
+                    const body = encodeURIComponent(data);
+                    window.open(`mailto:xolasup@mail.ru?subject=${subject}&body=${body}`, '_blank');
+                });
+            }
+
+            // ===== ОСТАЛЬНАЯ ЛОГИКА =====
+            const STORAGE_KEY = 'xolastars_v2';
+            let appData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"users":{},"reviews":[],"orders":[],"subscribers":[]}');
+            let currentUser = null;
+            let currentReviewFilter = 'all';
+            let currentReviewSort = 'newest';
+            let pendingOrder = null;
+
+            function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+            function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,8); }
+            function showToast(msg, type='info') {
+                const old = document.querySelector('.toast');
+                if (old) old.remove();
+                const t = document.createElement('div');
+                t.className = 'toast';
+                t.textContent = msg;
+                if (type === 'error') t.style.borderColor = '#e05570';
+                document.body.appendChild(t);
+                setTimeout(() => t.remove(), 3100);
+            }
+
+            function updateUserUI() {
+                const d = document.getElementById('userDisplay');
+                const btnL = document.getElementById('btnLogin');
+                const btnLo = document.getElementById('btnLogout');
+                if (currentUser && !currentUser.isAnonymous) {
+                    d.innerHTML = `<span class="user-avatar">${currentUser.email[0].toUpperCase()}</span> ${currentUser.email}`;
+                    btnL.style.display = 'none';
+                    btnLo.style.display = 'inline-flex';
+                } else if (currentUser && currentUser.isAnonymous) {
+                    d.innerHTML = `👤 Аноним (${currentUser.anonId.slice(-6)})`;
+                    btnL.style.display = 'none';
+                    btnLo.style.display = 'inline-flex';
+                } else {
+                    d.innerHTML = '🔒 Неавторизован';
+                    btnL.style.display = 'inline-flex';
+                    btnLo.style.display = 'none';
+                }
+                renderOrders();
+            }
+
+            window.openAuthModal = () => document.getElementById('authModalOverlay').classList.add('open');
+            window.closeAuthModal = () => document.getElementById('authModalOverlay').classList.remove('open');
+            window.registerOrLogin = function() {
+                const email = document.getElementById('authEmail').value.trim().toLowerCase();
+                const pass = document.getElementById('authPassword').value.trim();
+                if (!email || !pass) return showToast('Заполните email и пароль', 'error');
+                if (!email.includes('@') || email.length < 4) return showToast('Некорректный email', 'error');
+                if (pass.length < 2) return showToast('Пароль слишком короткий', 'error');
+                if (!appData.users[email]) appData.users[email] = { email, password: pass, createdAt: new Date().toISOString() };
+                currentUser = { email, isAnonymous: false };
+                save();
+                closeAuthModal();
+                updateUserUI();
+                showToast('✅ Добро пожаловать!');
+            };
+            window.loginAnonymous = function() {
+                currentUser = { email: null, isAnonymous: true, anonId: genId() };
+                closeAuthModal();
+                updateUserUI();
+                showToast('👤 Анонимный вход');
+            };
+            window.logout = function() {
+                currentUser = null;
+                pendingOrder = null;
+                updateUserUI();
+                showToast('🚪 Вы вышли');
+            };
+
+            // Цена фиксированная 1.25 ₽ за звезду
+            const PRICE_PER_STAR = 1.25;
+            function calcPrice(qty) {
+                return qty * PRICE_PER_STAR;
+            }
+
+            function updatePriceDisplay() {
+                const qty = parseInt(document.getElementById('starsQty').value) || 1;
+                document.getElementById('displayStars').textContent = qty.toLocaleString('ru-RU');
+                const price = calcPrice(qty);
+                document.getElementById('displayPrice').textContent = price.toFixed(2) + ' ₽';
+            }
+
+            document.getElementById('starsQty').addEventListener('input', function() {
+                let v = parseInt(this.value) || 1;
+                if (v < 1) v = 1;
+                if (v > 100000) v = 100000;
+                this.value = v;
+                updatePriceDisplay();
+            });
+
+            // Обработчики для наборов
+            document.querySelectorAll('.pack-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const qty = parseInt(this.dataset.qty);
+                    document.getElementById('starsQty').value = qty;
+                    updatePriceDisplay();
+                });
+            });
+
+            // Первоначальное обновление
+            updatePriceDisplay();
+
+            // Подсказка
+            const infoBadge = document.getElementById('infoBadge');
+            infoBadge.addEventListener('click', (e) => { e.stopPropagation(); infoBadge.classList.toggle('active'); });
+            document.addEventListener('click', (e) => { if (!infoBadge.contains(e.target)) infoBadge.classList.remove('active'); });
+
+            window.openPaymentModal = function() {
+                const username = document.getElementById('tgUsername').value.trim();
+                const qty = parseInt(document.getElementById('starsQty').value) || 0;
+                if (!username) return showToast('Заполните Telegram username', 'error');
+                if (!/^@[a-zA-Z0-9_]{3,32}$/.test(username)) return showToast('Username должен начинаться с @ и содержать 3-32 символа', 'error');
+                if (qty < 1) return showToast('Минимум 1 звезда', 'error');
+                const price = calcPrice(qty);
+                pendingOrder = { username, qty, price, timestamp: new Date().toISOString() };
+                document.getElementById('confirmStars').textContent = qty.toLocaleString('ru-RU');
+                document.getElementById('confirmUser').textContent = username;
+                document.getElementById('confirmPrice').textContent = price.toFixed(2) + ' ₽';
+                document.getElementById('confirmStep').classList.remove('step-hidden');
+                document.getElementById('confirmStep').classList.add('step-visible');
+                document.getElementById('paymentStep').classList.remove('step-visible');
+                document.getElementById('paymentStep').classList.add('step-hidden');
+                document.getElementById('paymentModalOverlay').classList.add('open');
+            };
+            window.goToPaymentStep = function() {
+                if (!pendingOrder) return;
+                document.getElementById('paymentAmount').textContent = pendingOrder.price.toFixed(2) + ' ₽';
+                document.getElementById('paymentStars').textContent = pendingOrder.qty.toLocaleString('ru-RU');
+                document.getElementById('paymentUser').textContent = pendingOrder.username;
+                document.getElementById('confirmStep').classList.remove('step-visible');
+                document.getElementById('confirmStep').classList.add('step-hidden');
+                document.getElementById('paymentStep').classList.remove('step-hidden');
+                document.getElementById('paymentStep').classList.add('step-visible');
+            };
+            window.closePaymentModal = function() {
+                document.getElementById('paymentModalOverlay').classList.remove('open');
+                document.getElementById('confirmStep').classList.remove('step-hidden');
+                document.getElementById('confirmStep').classList.add('step-visible');
+                document.getElementById('paymentStep').classList.remove('step-visible');
+                document.getElementById('paymentStep').classList.add('step-hidden');
+                pendingOrder = null;
+            };
+            window.copyCardNumber = function(text) {
+                navigator.clipboard.writeText(text).then(() => showToast('✅ Номер карты скопирован!'));
+            };
+
+            window.confirmPaymentDone = function() {
+                if (!pendingOrder) return;
+                const order = { ...pendingOrder, id: genId(), status: 'pending', user: currentUser?.email || 'anonymous' };
+                appData.orders.push(order);
+                save();
+                closePaymentModal();
+
+                sendOrderNotification(order).then(() => {
+                    document.getElementById('notifyModalOverlay').classList.add('open');
+                }).catch(() => {
+                    document.getElementById('notifyModalOverlay').classList.add('open');
+                });
+                renderOrders();
+                showToast('✅ Заказ создан! Администратор уведомлён.');
+            };
+
+            window.closeNotifyModal = function() {
+                document.getElementById('notifyModalOverlay').classList.remove('open');
+            };
+
+            window.openReviewModal = function() {
+                const username = document.getElementById('tgUsername').value.trim() || '';
+                document.getElementById('reviewAuthor').value = username;
+                document.getElementById('reviewText').value = '';
+                document.getElementById('reviewRating').value = '5';
+                resetStarInput();
+                document.getElementById('reviewModalOverlay').classList.add('open');
+            };
+            function resetStarInput() {
+                const stars = document.querySelectorAll('#starRatingInput span');
+                const rating = parseInt(document.getElementById('reviewRating').value) || 5;
+                stars.forEach((s, i) => {
+                    s.textContent = i < rating ? '★' : '☆';
+                    s.classList.toggle('active', i < rating);
+                });
+            }
+            document.getElementById('starRatingInput').addEventListener('click', function(e) {
+                if (e.target.tagName === 'SPAN' && e.target.dataset.val) {
+                    document.getElementById('reviewRating').value = e.target.dataset.val;
+                    resetStarInput();
+                }
+            });
+            document.getElementById('starRatingInput').addEventListener('mouseover', function(e) {
+                if (e.target.tagName === 'SPAN' && e.target.dataset.val) {
+                    const val = parseInt(e.target.dataset.val);
+                    this.querySelectorAll('span').forEach((s, i) => { s.textContent = i < val ? '★' : '☆'; });
+                }
+            });
+            document.getElementById('starRatingInput').addEventListener('mouseleave', resetStarInput);
+            resetStarInput();
+
+            window.submitReview = function() {
+                const author = document.getElementById('reviewAuthor').value.trim();
+                const text = document.getElementById('reviewText').value.trim();
+                const rating = parseInt(document.getElementById('reviewRating').value) || 5;
+                if (!author) return showToast('Укажите имя', 'error');
+                if (!text) return showToast('Напишите комментарий', 'error');
+                appData.reviews.push({ id: genId(), author, text, rating, date: new Date().toISOString() });
+                save();
+                closeReviewModal();
+                renderReviews();
+                showToast('✍️ Отзыв опубликован!');
+            };
+            window.closeReviewModal = () => {
+                document.getElementById('reviewModalOverlay').classList.remove('open');
+            };
+
+            function renderReviews() {
+                const container = document.getElementById('reviewsContainer');
+                let reviews = [...appData.reviews];
+                if (currentReviewSort === 'newest') reviews.sort((a,b) => new Date(b.date) - new Date(a.date));
+                else reviews.sort((a,b) => new Date(a.date) - new Date(b.date));
+                if (currentReviewFilter !== 'all') reviews = reviews.filter(r => r.rating === parseInt(currentReviewFilter));
+                if (!reviews.length) {
+                    container.innerHTML = '<p style="color:var(--text2);text-align:center;">Нет отзывов по данному фильтру.</p>';
+                } else {
+                    container.innerHTML = reviews.map(r => {
+                        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                        const d = new Date(r.date).toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
+                        return `<div class="review-card"><div class="review-header"><span class="review-author">${esc(r.author)}</span><span class="review-date">${d}</span></div><div class="review-stars">${stars}</div><div class="review-text">${esc(r.text)}</div></div>`;
+                    }).join('');
+                }
+                updateRatingDisplay();
+            }
+            function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+            function updateRatingDisplay() {
+                const total = appData.reviews.length;
+                if (total === 0) {
+                    document.getElementById('ratingDisplay').textContent = '⭐ Нет отзывов';
+                    return;
+                }
+                const sum = appData.reviews.reduce((acc, r) => acc + r.rating, 0);
+                const avg = (sum / total).toFixed(1);
+                document.getElementById('ratingDisplay').textContent = `⭐ ${avg} из 5 (${total} отзывов)`;
+                document.getElementById('statClients').textContent = total;
+            }
+
+            document.querySelector('#tab-reviews .filter-row').addEventListener('click', function(e) {
+                if (e.target.classList.contains('filter-btn')) {
+                    this.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter'));
+                    e.target.classList.add('active-filter');
+                    if (e.target.dataset.filter) currentReviewFilter = e.target.dataset.filter;
+                    if (e.target.dataset.sort) currentReviewSort = e.target.dataset.sort;
+                    renderReviews();
+                }
+            });
+
+            function renderOrders() {
+                const container = document.getElementById('ordersContainer');
+                if (!currentUser) {
+                    container.innerHTML = '<p style="color:var(--text2);text-align:center;">Авторизуйтесь, чтобы видеть заказы.</p>';
+                    return;
+                }
+                const userOrders = appData.orders.filter(o => o.user === (currentUser.email || 'anonymous'));
+                if (!userOrders.length) {
+                    container.innerHTML = '<p style="color:var(--text2);text-align:center;">У вас пока нет заказов.</p>';
+                    return;
+                }
+                container.innerHTML = userOrders.reverse().map(o => {
+                    const statusMap = { pending: ['⏳ Ожидает', 'status-pending'], done: ['✅ Выполнен', 'status-done'], cancel: ['❌ Отменён', 'status-cancel'] };
+                    const [text, cls] = statusMap[o.status] || ['Неизвестно', ''];
+                    return `<div class="order-item"><div><b>${esc(o.username)}</b> — ${o.qty} ⭐</div><div>${o.price.toFixed(2)} ₽</div><span class="status-badge ${cls}">${text}</span></div>`;
+                }).join('');
+            }
+
+            window.toggleFaq = function(el) {
+                const item = el.closest('.faq-item');
+                item.classList.toggle('open');
+            };
+
+            window.subscribe = function() {
+                const email = document.getElementById('subscribeEmail').value.trim();
+                if (!email || !email.includes('@')) {
+                    document.getElementById('subscribeMsg').textContent = '❌ Введите корректный email';
+                    return;
+                }
+                if (!appData.subscribers) appData.subscribers = [];
+                if (appData.subscribers.includes(email)) {
+                    document.getElementById('subscribeMsg').textContent = '⚠️ Вы уже подписаны! Ваш промокод: XOLA5';
+                    document.getElementById('promoDisplay').style.display = 'block';
+                    return;
+                }
+                appData.subscribers.push(email);
+                save();
+                document.getElementById('subscribeMsg').textContent = '✅ Спасибо! Ваш промокод ниже.';
+                document.getElementById('promoDisplay').style.display = 'block';
+                document.getElementById('subscribeEmail').value = '';
+
+                sendSubscriptionNotification(email);
+
+                const subject = encodeURIComponent('Ваш промокод на 5% скидку в XOLASTARS');
+                const body = encodeURIComponent('Ваш промокод: XOLA5 (действует 7 дней)');
+                window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
+            };
+
+            window.openTerms = function() { document.getElementById('termsModalOverlay').classList.add('open'); };
+            window.closeTerms = function() { document.getElementById('termsModalOverlay').classList.remove('open'); };
+            window.openPrivacy = function() { document.getElementById('privacyModalOverlay').classList.add('open'); };
+            window.closePrivacy = function() { document.getElementById('privacyModalOverlay').classList.remove('open'); };
+
+            document.querySelectorAll('.modal-overlay').forEach(ov => {
+                ov.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+                    infoBadge.classList.remove('active');
+                }
+            });
+
+            // Инициализация
+            updateUserUI();
+            renderReviews();
+            renderOrders();
+            updateRatingDisplay();
+            const totalStars = appData.orders.reduce((acc, o) => acc + o.qty, 0);
+            document.getElementById('statStars').textContent = (totalStars || 5000).toLocaleString() + '+';
+            console.log('✨ XOLASTARS v7 — убран QR, добавлена ссылка на Т-Банк');
+        })();
+    </script>
+</body>
+</html>
